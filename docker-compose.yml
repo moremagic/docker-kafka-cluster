@@ -1,5 +1,5 @@
 version: '3.4'
-x-kafka-enviroment: &kafka-enviroment
+x-kafka-enviroment: &kafka-environment
   KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
   KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
   KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
@@ -8,27 +8,41 @@ x-kafka-enviroment: &kafka-enviroment
   KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
   KAFKA_ACKS: -1
   KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+  #KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SASL_PLAINTEXT
+  KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+  KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+  KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/kafka_jaas.conf
+
+x-zookeeper-environment: &zookeeper-environment
+  ZOOKEEPER_TICK_TIME: 2000
+  ZOOKEEPER_INIT_LIMIT: 5
+  ZOOKEEPER_SYNC_LIMIT: 2
+  ZOOKEEPER_ADMIN_ENABLE_SERVER: false  # 管理者用WebGUIサーバーを起動
+  KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/zookeeper_jaas.conf
+#-Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl
+
+x-secrets-volumes: &secrets-volumes
+  - ./secrets:/etc/kafka/secrets
 
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
-      ZOOKEEPER_ADMIN_ENABLE_SERVER: true  # 管理者用WebGUIサーバーを起動
+      <<: *zookeeper-environment
       ZOOKEEPER_SERVER_ID: 1
       ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-      ZOOKEEPER_INIT_LIMIT: 5
-      ZOOKEEPER_SYNC_LIMIT: 2
+    volumes: *secrets-volumes
 
   broker-1:
     image: confluentinc/cp-kafka:latest
     ports:
       - '9092:9092'
     environment:
-      <<: *kafka-enviroment
+      <<: *kafka-environment
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://broker-1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+    volumes: *secrets-volumes
     depends_on:
       - zookeeper
 
@@ -37,10 +51,11 @@ services:
     ports:
       - '9093:9093'
     environment:
-      <<: *kafka-enviroment
+      <<: *kafka-environment
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://broker-2:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+    volumes: *secrets-volumes
     depends_on:
       - zookeeper
 
@@ -49,10 +64,11 @@ services:
     ports:
       - '9094:9094'
     environment:
-      <<: *kafka-enviroment
+      <<: *kafka-environment
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://broker-3:19094,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094
+    volumes: *secrets-volumes
     depends_on:
       - zookeeper
 
