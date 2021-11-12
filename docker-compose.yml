@@ -1,6 +1,6 @@
 version: '3.4'
 x-kafka-enviroment: &kafka-environment
-  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:SASL_PLAINTEXT,LISTENER_DOCKER_EXTERNAL:SASL_PLAINTEXT
   KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
   KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
   KAFKA_DEFAULT_REPLICATION_FACTOR: 3
@@ -19,7 +19,6 @@ x-zookeeper-environment: &zookeeper-environment
   ZOOKEEPER_SYNC_LIMIT: 2
   ZOOKEEPER_ADMIN_ENABLE_SERVER: false  # 管理者用WebGUIサーバーを起動
   KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/zookeeper_jaas.conf
-#-Dzookeeper.authProvider.1=org.apache.zookeeper.server.auth.SASLAuthenticationProvider -Dzookeeper.requireClientAuthScheme=sasl
 
 x-secrets-volumes: &secrets-volumes
   - ./secrets:/etc/kafka/secrets
@@ -75,7 +74,9 @@ services:
   akhq:
     image: tchiotludo/akhq
     environment:
-      AKHQ_CONFIGURATION: '{"akhq": {"connections": {"docker-kafka-server": {"schema-registry": {"url": "http://schema-registry:8085"}, "properties": {"bootstrap.servers": "broker-1:19092,broker-2:19093,broker-3:19094"}, "connect": [{"url": "http://connect:8083", "name": "connect"}]}}}}'
+      JAVA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/akhq_jaas.conf
+      AKHQ_CONFIGURATION: '{"akhq": {"connections": {"docker-kafka-server": {"schema-registry": {"url": "http://schema-registry:8085"}, "properties": {"bootstrap.servers": "broker-1:19092,broker-2:19093,broker-3:19094", "security.protocol": "SASL_PLAINTEXT", "sasl.mechanism": "PLAIN"}, "connect": [{"url": "http://connect:8083", "name": "connect"}]}}}}'
+    volumes: *secrets-volumes
     ports:
       - 8080:8080
     links:
