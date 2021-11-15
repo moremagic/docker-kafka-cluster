@@ -4,39 +4,61 @@ kafka bloker をクラスタ構成でローカル起動するDockerComposeです
 
 # quick start
 
+## Kafkaを起動する
+
 `docker-compose up -d`
 
 
-## Kafka ACL
-https://docs.confluent.io/3.3.0/kafka/authorization.html
-https://docs.confluent.io/ja-jp/platform/6.0.1/kafka/authorization.html#acl-concepts
+## Kafka ACL の設定を行う
 
-### 現状
-今の所以下のエラーが出る
+- User:akhq topic:* Read/Write
+- User:kafkaadmin topic:* group:* Read/Write // broker-broker間における接続元側が接続先に提示するアカウント kafka-admin
 
 ```
 # ACLの登録
+
+## Cluster User:kafkaadmin の topic:* に対しての Operation * を許可する
 kafka-acls \
     --bootstrap-server broker-1:9092 \
     --command-config /etc/kafka/secrets/admin-client.conf \
     --add \
-    --allow-principal User:* \
-    --allow-host bloker-1 \
-    --allow-host bloker-2 \
-    --allow-host bloker-3 \
-    --operation read \
-    --operation write \
-    --topic hoge
+    --allow-principal User:kafkaadmin \
+    --cluster *
     
+kafka-acls \
+    --bootstrap-server broker-1:9092 \
+    --command-config /etc/kafka/secrets/admin-client.conf \
+    --add \
+    --allow-principal User:akhq \
+    --cluster *
     
-     Error while executing ACL command: org.apache.kafka.common.errors.SecurityDisabledException: No Authorizer is configured on the broker.
+kafka-acls \
+    --bootstrap-server broker-1:9092 \
+    --command-config /etc/kafka/secrets/admin-client.conf \
+    --add \
+    --allow-principal User:akhq \
+    --topic *
+
+
+kafka-acls \
+    --bootstrap-server broker-1:9092 \
+    --command-config /etc/kafka/secrets/admin-client.conf \
+    --list
  ```
 
-```
-kafka-acls --authorizer-properties zookeeper.connect=zookeeper:2181 --list
+### 参考資料
+https://docs.confluent.io/3.3.0/kafka/authorization.html
+https://docs.confluent.io/ja-jp/platform/6.0.1/kafka/authorization.html#acl-concepts
+https://cwiki.apache.org/confluence/display/KAFKA/Kafka+Authorization+Command+Line+Interface
 
-    Error while executing ACL command: KeeperErrorCode = InvalidACL for /kafka-acl
-```
+
+## ACL 設定を有効にする
+
+1. broker を停止
+2. docker-compose の `KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: true` をコメントアウト
+3. broker を起動
+
+
 
 ## AKHQ
 

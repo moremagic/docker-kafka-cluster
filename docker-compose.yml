@@ -7,16 +7,18 @@ x-kafka-enviroment: &kafka-environment
   KAFKA_ACKS: -1
   KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
   KAFKA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/kafka_jaas.conf
-  KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SASL_SSL
+  KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SASL_PLAINTEXT
   KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
   KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
-  KAFKA_SSL_KEYSTORE_FILENAME: ssl/kafka.keystore.jks
-  KAFKA_SSL_KEYSTORE_CREDENTIALS: ssl/kafka_keystore_creds
-  KAFKA_SSL_KEY_CREDENTIALS: ssl/kafka_sslkey_creds
-  KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "" # SSLホスト名検証をスキップする設定
-  KAFKA_SSL_TRUSTSTORE_FILENAME: ssl/kafka.keystore.jks
-  KAFKA_SSL_TRUSTSTORE_CREDENTIALS: ssl/kafka_truststore_creds
-  KAFKA_SSL_CLIENT_AUTH: required
+  KAFKA_AUTHORIZER_CLASS_NAME: kafka.security.authorizer.AclAuthorizer
+  KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: true #ACLが見つからない場合全員に許可（安全性低）
+#  KAFKA_SSL_KEYSTORE_FILENAME: ssl/kafka.keystore.jks
+#  KAFKA_SSL_KEYSTORE_CREDENTIALS: ssl/kafka_keystore_creds
+#  KAFKA_SSL_KEY_CREDENTIALS: ssl/kafka_sslkey_creds
+#  KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "" # SSLホスト名検証をスキップする設定
+#  KAFKA_SSL_TRUSTSTORE_FILENAME: ssl/kafka.keystore.jks
+#  KAFKA_SSL_TRUSTSTORE_CREDENTIALS: ssl/kafka_truststore_creds
+#  KAFKA_SSL_CLIENT_AUTH: required
 
 x-zookeeper-environment: &zookeeper-environment
   ZOOKEEPER_INIT_LIMIT: 5
@@ -45,7 +47,7 @@ services:
       <<: *kafka-environment
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: SASL_SSL://broker-1:9092
+      KAFKA_ADVERTISED_LISTENERS: SASL_PLAINTEXT://broker-1:9092
     volumes: *secrets-volumes
     depends_on:
       - zookeeper
@@ -58,7 +60,7 @@ services:
       <<: *kafka-environment
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: SASL_SSL://broker-2:9093
+      KAFKA_ADVERTISED_LISTENERS: SASL_PLAINTEXT://broker-2:9093
     volumes: *secrets-volumes
     depends_on:
       - zookeeper
@@ -71,7 +73,7 @@ services:
       <<: *kafka-environment
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: SASL_SSL://broker-3:9094
+      KAFKA_ADVERTISED_LISTENERS: SASL_PLAINTEXT://broker-3:9094
     volumes: *secrets-volumes
     depends_on:
       - zookeeper
@@ -79,8 +81,8 @@ services:
   akhq:
     image: tchiotludo/akhq
     environment:
-      JAVA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/akhq_jaas.conf -Dssl.truststore.location=/etc/kafka/secrets/ssl/kafka.keystore.jks -Dssl.truststore.password="password" -Dssl.endpoint.identification.algorithm="" #-Dssl.keystore.type="PKCS12"
-      AKHQ_CONFIGURATION: '{"akhq": {"connections": {"docker-kafka-server": {"schema-registry": {"url": "http://schema-registry:8085"}, "properties": {"bootstrap.servers": "broker-1:9092", "security.protocol": "SASL_SSL", "sasl.mechanism": "PLAIN"}, "connect": [{"url": "http://connect:8083", "name": "connect"}]}}}}'
+      JAVA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/akhq_jaas.conf #-Dssl.truststore.location=/etc/kafka/secrets/ssl/kafka.keystore.jks -Dssl.truststore.password="password" -Dssl.endpoint.identification.algorithm="" -Dssl.keystore.type="PKCS12"
+      AKHQ_CONFIGURATION: '{"akhq": {"connections": {"docker-kafka-server": {"schema-registry": {"url": "http://schema-registry:8085"}, "properties": {"bootstrap.servers": "broker-1:9092", "security.protocol": "SASL_PLAINTEXT", "sasl.mechanism": "PLAIN"}, "connect": [{"url": "http://connect:8083", "name": "connect"}]}}}}'
     volumes: *secrets-volumes
     ports:
       - 8080:8080
