@@ -82,7 +82,42 @@ services:
     image: tchiotludo/akhq
     environment:
       JAVA_OPTS: -Djava.security.auth.login.config=/etc/kafka/secrets/akhq_jaas.conf #-Dssl.truststore.location=/etc/kafka/secrets/ssl/kafka.keystore.jks -Dssl.truststore.password="password" -Dssl.endpoint.identification.algorithm="" -Dssl.keystore.type="PKCS12"
-      AKHQ_CONFIGURATION: '{"akhq": {"connections": {"docker-kafka-server": {"schema-registry": {"url": "http://schema-registry:8085"}, "properties": {"bootstrap.servers": "broker-1:9092", "security.protocol": "SASL_PLAINTEXT", "sasl.mechanism": "PLAIN"}, "connect": [{"url": "http://connect:8083", "name": "connect"}]}}}}'
+      AKHQ_CONFIGURATION: |
+        micronaut:
+          security:
+            enabled: true
+            token:
+              jwt:
+                signatures:
+                  secret:
+                    generator:
+                      secret: MIGqAgEAAiEA6L8RmkZX5ZwCXu8wtB9zODyLAHdEgOBWwR5Ul24PUIcCAwEAAQIg
+                              MkQhvxn2HcbF1E8AS8aHEXKpZcdwT8awGCCbOevDuKECEQD+yQn/ofnlvodsX+00
+                              tpz5AhEA6dshrfdChUAFA4noR6Q5fwIQZBF5x9lKWR23+qzCcY23oQIQbNu3ms6N
+                              pY9+hf4tJSQ6KwIRANCmrIlWEH93x+ZCak78Bj4=
+        akhq.security:
+          default-group: reader
+          basic-auth:
+            - username: admin
+              password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+              groups:
+              - admin
+            - username: reader
+              password: "3d0941964aa3ebdcb00ccef58b1bb399f9f898465e9886d5aec7f31090a0fb30"
+              groups:
+              - reader
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "broker-1:9092, broker-2:9093, broker-3:9094"
+                security.protocol: "SASL_PLAINTEXT"
+                sasl.mechanism: "PLAIN"
+              schema-registry:
+                url: "http://schema-registry:8085"
+              connect:
+                - name: "connect"
+                  url: "http://connect:8083"
     volumes: *secrets-volumes
     ports:
       - 8080:8080
