@@ -75,7 +75,44 @@ services:
   akhq:
     image: tchiotludo/akhq
     environment:
-      AKHQ_CONFIGURATION: '{"akhq": {"connections": {"docker-kafka-server": {"schema-registry": {"url": "http://schema-registry:8085"}, "properties": {"bootstrap.servers": "broker-1:19092,broker-2:19093,broker-3:19094"}, "connect": [{"url": "http://connect:8083", "name": "connect"}]}}}}'
+        AKHQ_CONFIGURATION: |
+          micronaut:
+            security:
+              enabled: true
+            token:
+              jwt:
+                signatures:
+                  secret:
+                    generator:
+                      secret: e0mzrK9/zmgukvqx2ZOxUSntxe8W95xbH1aodgjXCKCXu6TBerJt0pVYWl7XpVR1u
+                              DVtllUQuSsAu29He0LP7JTdhbMFi+4I9Uu9uAfAGsXldoNUeebvA9iq0N68vwtWEp
+                              AzWAO7QZw4C1+9NDyyMCHsx5cc2Y5kiNVwATuyKdleL8fP3DyfRXrvIbetAUvTcnt
+                              CL2Mq6TnEJl4vTR7l3WHnlyltAyKcNcysS0nADX9BGDEqX81MnxsMYCfn6OfSFT5A
+                              a6+cj1wq3EV6c5o2AqakKQdN++/OZiXsAJ4YN/zRw6G8C/x2sqTf67VbQVnC6q3ZE
+                              NSWb0N66QFZX1QZ4wG2P1VgBcvdRYLcz7zyempjfczoiar5Sziaqti5CwwKnESVq+
+                              dta/3E+u+FaTlL3ZB2cMBSAijFz8ejukpDP074BTTGNqeTrsz7m/LM5389QRSSqXL
+
+          akhq.security:
+            default-group: reader
+            basic-auth:
+              - username: admin
+                password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+                groups:
+                - admin
+              - username: reader
+                password: "3d0941964aa3ebdcb00ccef58b1bb399f9f898465e9886d5aec7f31090a0fb30"
+                groups:
+                - reader
+          akhq:
+            connections:
+              docker-kafka-server:
+                properties:
+                  bootstrap.servers: "broker-1:19092, broker-2:19093, broker-3:19094"
+                schema-registry:
+                  url: "http://schema-registry:8085"
+                connect:
+                  - name: "connect"
+                    url: "http://connect:8083"
     ports:
       - 8080:8080
     links:
