@@ -79,21 +79,17 @@ services:
           micronaut:
             security:
               enabled: true
-            token:
-              jwt:
-                signatures:
-                  secret:
-                    generator:
-                      secret: e0mzrK9/zmgukvqx2ZOxUSntxe8W95xbH1aodgjXCKCXu6TBerJt0pVYWl7XpVR1u
-                              DVtllUQuSsAu29He0LP7JTdhbMFi+4I9Uu9uAfAGsXldoNUeebvA9iq0N68vwtWEp
-                              AzWAO7QZw4C1+9NDyyMCHsx5cc2Y5kiNVwATuyKdleL8fP3DyfRXrvIbetAUvTcnt
-                              CL2Mq6TnEJl4vTR7l3WHnlyltAyKcNcysS0nADX9BGDEqX81MnxsMYCfn6OfSFT5A
-                              a6+cj1wq3EV6c5o2AqakKQdN++/OZiXsAJ4YN/zRw6G8C/x2sqTf67VbQVnC6q3ZE
-                              NSWb0N66QFZX1QZ4wG2P1VgBcvdRYLcz7zyempjfczoiar5Sziaqti5CwwKnESVq+
-                              dta/3E+u+FaTlL3ZB2cMBSAijFz8ejukpDP074BTTGNqeTrsz7m/LM5389QRSSqXL
-
+              token:
+                jwt:
+                  enabled: true
+                  signatures:
+                    secret:
+                      generator:
+                        secret: thissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartup 
+                        base64: true
+                        jws-algorithm: HS256
           akhq.security:
-            default-group: reader
+            default-group: no-roles
             basic-auth:
               - username: admin
                 password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
