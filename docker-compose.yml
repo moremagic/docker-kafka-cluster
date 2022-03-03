@@ -85,12 +85,12 @@ services:
                   signatures:
                     secret:
                       generator:
-                        secret: thissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartupthissecretisjustsetupforavoidingdefaultsecretwarningatstartup 
+                        secret: ib7pqnIDc92CzaRmqDkteNUJoDR3RB4rpwjGAWrc4suogKLeqDCanwmjqBbcTARS+i33CoRU13T4foOKjCboO/0xW8SqTaDE46Ag1VMFFbNeBbTUyC90jZSdh2JyEJUSuy75J5g2Zkhw67byQOgqTaG4OaPE1sg49C76wMABuOWUti3ubsI7KMFRf4dRM06tShlX7PHQyfeg86kfq7zxzGmz/7gR8oJB2eJZku3bNk8iooOHKwZu28Cqx4gxN766BH+LTG5EgnM4w1ehKWAPhfIpqCCoD97KOJIsT352A4Evb6RwN7Zi+P93FC+AY34iklkBm0NS0RCM/VtI1IoUfa6xuAEF7XGHHsx0i4xMxHMouuL2n9lWQeLfpjTCIFHKRJOW0zI1M3GhSzxz+G/UdYV8XIH0JZQBsAcXg9oFZxPG5/G/iwhQIy3GVZKtxO7onO0A3Os9q1whac02dvv+YPv9s69utv0iUrxC6d2mIqI6qxCHkKB+KPRLvfZIQocc 
                         base64: true
                         jws-algorithm: HS256
           akhq.security:
             default-group: no-roles
-            basic-auth:
+            basic-auth: # admin/admin, reader/reader
               - username: admin
                 password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
                 groups:
@@ -116,4 +116,92 @@ services:
       - broker-2
       - broker-3
 
+  new-zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
 
+  new-broker-1:
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - '9095:9095'
+    environment:
+      KAFKA_BROKER_ID: 11
+      KAFKA_ZOOKEEPER_CONNECT: 'new-zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://new-broker-1:19095,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9095
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
+      KAFKA_ACKS: -1
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+    depends_on:
+      - new-zookeeper
+
+  new-broker-2:
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - '9096:9096'
+    environment:
+      KAFKA_BROKER_ID: 12
+      KAFKA_ZOOKEEPER_CONNECT: 'new-zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://new-broker-2:19096,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 2
+      KAFKA_MIN_INSYNC_REPLICAS: 1
+      KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
+      KAFKA_ACKS: -1
+      KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+    depends_on:
+      - new-zookeeper
+
+  new-akhq:
+    image: tchiotludo/akhq
+    environment:
+        AKHQ_CONFIGURATION: |
+          micronaut:
+            security:
+              enabled: true
+              token:
+                jwt:
+                  enabled: true
+                  signatures:
+                    secret:
+                      generator:
+                        secret: ib7pqnIDc92CzaRmqDkteNUJoDR3RB4rpwjGAWrc4suogKLeqDCanwmjqBbcTARS+i33CoRU13T4foOKjCboO/0xW8SqTaDE46Ag1VMFFbNeBbTUyC90jZSdh2JyEJUSuy75J5g2Zkhw67byQOgqTaG4OaPE1sg49C76wMABuOWUti3ubsI7KMFRf4dRM06tShlX7PHQyfeg86kfq7zxzGmz/7gR8oJB2eJZku3bNk8iooOHKwZu28Cqx4gxN766BH+LTG5EgnM4w1ehKWAPhfIpqCCoD97KOJIsT352A4Evb6RwN7Zi+P93FC+AY34iklkBm0NS0RCM/VtI1IoUfa6xuAEF7XGHHsx0i4xMxHMouuL2n9lWQeLfpjTCIFHKRJOW0zI1M3GhSzxz+G/UdYV8XIH0JZQBsAcXg9oFZxPG5/G/iwhQIy3GVZKtxO7onO0A3Os9q1whac02dvv+YPv9s69utv0iUrxC6d2mIqI6qxCHkKB+KPRLvfZIQocc 
+                        base64: true
+                        jws-algorithm: HS256
+          akhq.security:
+            default-group: no-roles
+            basic-auth: # admin/admin, reader/reader
+              - username: admin
+                password: "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918"
+                groups:
+                - admin
+              - username: reader
+                password: "3d0941964aa3ebdcb00ccef58b1bb399f9f898465e9886d5aec7f31090a0fb30"
+                groups:
+                - reader
+          akhq:
+            connections:
+              docker-kafka-server:
+                properties:
+                  bootstrap.servers: "new-broker-1:19095, new-broker-2:19096"
+                schema-registry:
+                  url: "http://schema-registry:8085"
+                connect:
+                  - name: "connect"
+                    url: "http://connect:8083"
+    ports:
+      - 8081:8080
+    links:
+      - new-broker-1
+      - new-broker-2
