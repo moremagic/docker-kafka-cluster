@@ -1,0 +1,98 @@
+version: '3.4'
+x-kafka-enviroment: &kafka-environment
+  KAFKA_CONFLUENT_SUPPORT_METRICS_ENABLE: "false"
+  KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+  KAFKA_MIN_INSYNC_REPLICAS: 2
+  KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
+  KAFKA_ACKS: -1
+  KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+  KAFKA_SECURITY_PROTOCOL: SSL
+  KAFKA_SECURITY_INTER_BROKER_PROTOCOL: SSL
+  KAFKA_SSL_CLIENT_AUTH: required
+  KAFKA_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM: "" # SSLホスト名検証をスキップする設定
+  KAFKA_SSL_KEYSTORE_FILENAME: ssl/kafka.keystore.jks
+  KAFKA_SSL_KEYSTORE_CREDENTIALS: ssl/kafka_keystore_creds
+  KAFKA_SSL_KEY_CREDENTIALS: ssl/kafka_sslkey_creds
+  KAFKA_SSL_TRUSTSTORE_FILENAME: ssl/kafka.keystore.jks
+  KAFKA_SSL_TRUSTSTORE_CREDENTIALS: ssl/kafka_truststore_creds
+
+x-zookeeper-environment: &zookeeper-environment
+  ZOOKEEPER_INIT_LIMIT: 5
+  ZOOKEEPER_SYNC_LIMIT: 2
+  ZOOKEEPER_TICK_TIME: 2000
+  ZOOKEEPER_ADMIN_ENABLE_SERVER: false  # 管理者用WebGUIサーバーを起動
+
+x-secrets-volumes: &secrets-volumes
+  - ./secrets:/etc/kafka/secrets
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      <<: *zookeeper-environment
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+    volumes: *secrets-volumes
+
+  broker-1:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      <<: *kafka-environment
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: SSL://broker-1:9092
+    volumes: *secrets-volumes
+    depends_on:
+      - zookeeper
+
+  broker-2:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      <<: *kafka-environment
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: SSL://broker-2:9093
+    volumes: *secrets-volumes
+    depends_on:
+      - zookeeper
+
+  broker-3:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      <<: *kafka-environment
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: SSL://broker-3:9094
+    volumes: *secrets-volumes
+    depends_on:
+      - zookeeper
+
+  akhq:
+    image: tchiotludo/akhq
+    environment:
+      AKHQ_CONFIGURATION: |
+        akhq:
+          connections:
+            docker-kafka-server:
+              properties:
+                bootstrap.servers: "broker-1:9092, broker-2:9093, broker-3:9094"
+                security.protocol: SSL
+                ssl.endpoint.identification.algorithm: ""
+                ssl.truststore.location: /etc/kafka/secrets/ssl/kafka.keystore.jks
+                ssl.truststore.password: password
+                ssl.keystore.type: "JKS"
+                ssl.keystore.location: /etc/kafka/secrets/ssl/kafka.keystore.jks
+                ssl.keystore.password: password
+                ssl.key.password: password
+              schema-registry:
+                url: "http://schema-registry:8085"
+              connect:
+                - name: "connect"
+                  url: "http://connect:8083"
+    volumes: *secrets-volumes
+    ports:
+      - 8080:8080
+    links:
+      - broker-1
+      - broker-2
+      - broker-3
