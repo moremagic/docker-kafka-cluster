@@ -94,10 +94,6 @@ services:
                   client-id: "kafka-client"
                   openid:
                     issuer: "http://192.168.50.8:8081/auth/realms/sandbox_kafka"
-                github:
-                  client-id: "hogehoge"
-                  openid:
-                    issuer: "http://192.168.50.8:8081/auth/realms/hogehoge"
         akhq:
           security:
             oidc:
@@ -106,21 +102,15 @@ services:
                 keycloak:
                   label: "Login with Keycloak"
                   username-field: preferred_username
-                  groups-field: groups
+                  groups-field: akhq_roles
                   default-group: topic-reader
                   groups:
-                    - name: mathematicians
+                    - name: role_admin
                       groups:
                         - admin
-                    - name: scientists
+                    - name: role_all_reader
                       groups:
-                        - topic-reader
-                        - topic-writer
-                github:
-                  label: "Login with Github"
-                  username-field: preferred_username
-                  groups-field: groups
-                  default-group: topic-reader
+                        - reader
           connections:
             docker-kafka-server:
               properties:
