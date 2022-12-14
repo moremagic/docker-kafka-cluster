@@ -5,9 +5,9 @@ services:
     environment:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
-      KEYCLOAK_IMPORT: /tmp/example-realm.json 
+      KEYCLOAK_IMPORT: /tmp/sample-realm.json
     volumes:
-      - ./config/sample-realm-export.json:/tmp/example-realm.json
+      - ./config/sample-realm.json:/tmp/sample-realm.json
     ports:
       - '8081:8080'
 
@@ -90,15 +90,19 @@ services:
         micronaut:
           security:
             enabled: true
+            redirect:
+              logout: "http://192.168.50.8:8081/auth/realms/sample/protocol/openid-connect/logout"
             oauth2:
               enabled: true
               clients:
                 keycloak:
-                  client-id: "kafka-client"
+                  client-id: "akhq"
                   openid:
-                    issuer: "http://192.168.50.8:8081/auth/realms/sandbox_kafka"
+                    issuer: "http://192.168.50.8:8081/auth/realms/sample"
+                    configuration-path: "/.well-known/openid-configuration"
         akhq:
           security:
+            default-group: no-roles
             oidc:
               enabled: true
               providers:
@@ -106,7 +110,6 @@ services:
                   label: "Login with Keycloak"
                   username-field: preferred_username
                   groups-field: akhq_roles
-                  default-group: no-roles
                   groups:
                     - name: role_admin
                       groups:
