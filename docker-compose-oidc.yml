@@ -91,14 +91,14 @@ services:
           security:
             enabled: true
             redirect:
-              logout: "http://192.168.50.8:8081/auth/realms/sample/protocol/openid-connect/logout"
+              logout: "http://${DOCKER_HOST_IP:-127.0.0.1}:8081/auth/realms/sample/protocol/openid-connect/logout"
             oauth2:
               enabled: true
               clients:
                 keycloak:
                   client-id: "akhq"
                   openid:
-                    issuer: "http://192.168.50.8:8081/auth/realms/sample"
+                    issuer: "http://${DOCKER_HOST_IP:-127.0.0.1}:8081/auth/realms/sample"
                     configuration-path: "/.well-known/openid-configuration"
         akhq:
           security:
