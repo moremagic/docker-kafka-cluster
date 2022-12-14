@@ -5,6 +5,9 @@ services:
     environment:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_IMPORT: /tmp/example-realm.json 
+    volumes:
+      - ./config/sample-realm-export.json:/tmp/example-realm.json
     ports:
       - '8081:8080'
 
@@ -103,7 +106,7 @@ services:
                   label: "Login with Keycloak"
                   username-field: preferred_username
                   groups-field: akhq_roles
-                  default-group: topic-reader
+                  default-group: no-roles
                   groups:
                     - name: role_admin
                       groups:
