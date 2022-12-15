@@ -19,13 +19,13 @@ $ ./secrets-tool/create-secrets.sh
 $ docker-compose -f docker-compose-ssl.yml up -d
 ```
 
-## OIDC(keycloak)
+## PLAINTEXT + AKHQ OIDC(keycloak)
 
 暗号化しない Broker と OIDC 認証を有効にした AKHQ の起動手順です
 
 ```
 $ export DOCKER_HOST_IP=$(ifconfig en0 | awk '$1 == "inet" {print $2}')
-$ docker-compose -f docker-compose-oidc.yml up -d
+$ docker-compose -f docker-compose-akhq-oidc.yml up -d
 ```
 
 # AKHQ(https://akhq.io/)
