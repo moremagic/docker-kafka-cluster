@@ -1,16 +1,16 @@
 # docker-kafka-cluster
 
-kafka bloker をクラスタ構成でローカル起動するDockerComposeです
+Kafka をクラスタ構成でローカル起動するDockerComposeです
 
 # quick start
 
-## PLAINTEXT
+## Kafka PLAINTEXT + AKHQ
 
 暗号化しない Broker と AKHQ の起動手順です
 
 `docker-compose up -d`
 
-## SSL
+## Kafka SSL + AKHQ
 
 SSL暗号化を有効にした Broker と AKHQ の起動手順です
 
@@ -19,7 +19,7 @@ $ ./secrets-tool/create-secrets.sh
 $ docker-compose -f docker-compose-ssl.yml up -d
 ```
 
-## PLAINTEXT + AKHQ OIDC(keycloak)
+## Kafka PLAINTEXT + AKHQ + OIDC(Keycloak for AKHQ)
 
 暗号化しない Broker と OIDC 認証を有効にした AKHQ の起動手順です
 
@@ -28,7 +28,7 @@ $ export DOCKER_HOST_IP=$(ifconfig en0 | awk '$1 == "inet" {print $2}')
 $ docker-compose -f docker-compose-akhq-oidc.yml up -d
 ```
 
-# AKHQ(https://akhq.io/)
+# [AKHQ](https://akhq.io/)
 
 ```
 $ export DOCKER_HOST_IP=$(ifconfig en0 | awk '$1 == "inet" {print $2}')
