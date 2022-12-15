@@ -28,7 +28,9 @@ $ export DOCKER_HOST_IP=$(ifconfig en0 | awk '$1 == "inet" {print $2}')
 $ docker-compose -f docker-compose-akhq-oidc.yml up -d
 ```
 
-# [AKHQ](https://akhq.io/)
+## [AKHQ](https://akhq.io/)
+
+AKHQ には以下のようにアクセスします
 
 ```
 $ export DOCKER_HOST_IP=$(ifconfig en0 | awk '$1 == "inet" {print $2}')
