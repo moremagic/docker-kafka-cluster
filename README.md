@@ -25,7 +25,7 @@ $ docker-compose -f docker-compose-ssl.yml up -d
 
 ```
 $ export DOCKER_HOST_IP=$(ifconfig en0 | awk '$1 == "inet" {print $2}')
-$ docker-compose -f docker-compose-ssl.yml up -d
+$ docker-compose -f docker-compose-oidc.yml up -d
 ```
 
 # AKHQ(https://akhq.io/)
