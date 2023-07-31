@@ -83,6 +83,25 @@ services:
     depends_on:
       - zookeeper
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=docker-kafka-cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker-1:9092,broker-2:9092,broker-3:9092
+      - AUTH_TYPE=OAUTH2
+      - AUTH_OAUTH2_CLIENT_GITHUB_PROVIDER=github
+      - AUTH_OAUTH2_CLIENT_GITHUB_CLIENTID=
+      - AUTH_OAUTH2_CLIENT_GITHUB_CLIENT_SECRET=
+      - AUTH_OAUTH2_CLIENT_GITHUB_SCOPE=read:org
+      - AUTH_OAUTH2_CLIENT_GITHUB_USER_NAME_ATTRIBUTE=login
+      - AUTH_OAUTH2_CLIENT_GITHUB_CUSTOM_PARAMS_TYPE=github
+    ports:
+      - 8080:8080
+    depends_on:
+      - broker-1
+      - broker-2
+      - broker-3
   akhq:
     image: tchiotludo/akhq
     environment:
