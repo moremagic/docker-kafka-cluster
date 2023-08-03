@@ -40,8 +40,8 @@ $ open http://${DOCKER_HOST_IP}:8080
 ### OIDC有効時のユーザーとパスワード
 | AKHQ user | password | [group](https://akhq.io/docs/configuration/authentifications/groups.html) |
 ----|----|----
-| admin-user | admin_user | admin |
-| reader-user | reader_user | reader |
+| admin-user | admin | admin |
+| reader-user | reader | reader |
 
 # 資料
 
