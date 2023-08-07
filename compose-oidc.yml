@@ -21,7 +21,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
       ZOOKEEPER_INIT_LIMIT: 5
       ZOOKEEPER_SYNC_LIMIT: 2
- 
+
   broker-1:
     image: confluentinc/cp-kafka:latest
     environment:
@@ -36,6 +36,8 @@ services:
       KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
       KAFKA_ACKS: -1
       KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_HOSTNAME: broker-1
     depends_on:
       - zookeeper
 
@@ -53,6 +55,8 @@ services:
       KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
       KAFKA_ACKS: -1
       KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_HOSTNAME: broker-2
     depends_on:
       - zookeeper
 
@@ -70,6 +74,8 @@ services:
       KAFKA_OFFSETS_COMMIT_REQUIRED_ACKS: -1
       KAFKA_ACKS: -1
       KAFKA_LOG4J_ROOT_LOGLEVEL: INFO
+      KAFKA_JMX_PORT: 9997
+      KAFKA_JMX_HOSTNAME: broker-3
     depends_on:
       - zookeeper
 
@@ -77,22 +83,14 @@ services:
     image: provectuslabs/kafka-ui
     restart: always
     environment:
-      - KAFKA_CLUSTERS_0_NAME=docker-kafka-cluster
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker-1:9092,broker-2:9092,broker-3:9092
-      - AUTH_TYPE=OAUTH2
-      - AUTH_OAUTH2_CLIENT_KEYCLOAK_CLIENTID=kafka-ui
-      - AUTH_OAUTH2_CLIENT_KEYCLOAK_SCOPE=openid
-      - AUTH_OAUTH2_CLIENT_KEYCLOAK_USER_NAME_ATTRIBUTE=preferred_username
-      - AUTH_OAUTH2_CLIENT_KEYCLOAK_ISSUER_URI=http://${DOCKER_HOST_IP:-127.0.0.1}:8080/realms/sample
-      - AUTH_OAUTH2_CLIENT_KEYCLOAK_PROVIDER=keycloak
-      - AUTH_OAUTH2_CLIENT_KEYCLOAK_CLIENT_NAME=keycloak
+      DOCKER_HOST_IP: ${DOCKER_HOST_IP:-127.0.0.1}
+      SPRING_CONFIG_ADDITIONAL-LOCATION: /config.yml
+    volumes:
+      - ./config/kafkaui-config.yml:/config.yml
     ports:
       - 8081:8080
     depends_on:
       - keycloak
-      - broker-1
-      - broker-2
-      - broker-3
 
   akhq:
     image: tchiotludo/akhq
@@ -138,6 +136,3 @@ services:
       - 18080:8080
     depends_on:
       - keycloak
-      - broker-1
-      - broker-2
-      - broker-3

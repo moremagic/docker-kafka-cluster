@@ -1,0 +1,21 @@
+kafka:
+  clusters:
+    -
+      name: docker-kafka-cluster
+      bootstrapServers: broker-1:9092,broker-2:9092,broker-3:9092
+      metrics:
+        port: 9997
+        type: JMX
+auth:
+  type: OAUTH2
+  oauth2:
+    client:
+      keycloak:
+        clientId: kafka-ui
+        scope: openid
+        issuer-uri: http://${DOCKER_HOST_IP:-127.0.0.1}:8080/realms/sample
+        user-name-attribute: preferred_username
+        client-name: keycloak
+        provider: keycloak
+        custom-params:
+          type: keycloak    
