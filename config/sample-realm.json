@@ -77,17 +77,17 @@
     } ],
     "client" : {
       "kafka-ui" : [ {
-        "id" : "b3ed8150-acd2-4889-9898-ce93a89c4b66",
-        "name" : "add-reader",
-        "description" : "kafka-ui all-reader",
+        "id" : "dc52a27b-6209-4408-91c3-6bb58d05b981",
+        "name" : "admin",
+        "description" : "kafka-ui admin",
         "composite" : false,
         "clientRole" : true,
         "containerId" : "3abacfcf-3709-4e04-83ec-7a6bd02d4f8c",
         "attributes" : { }
       }, {
-        "id" : "dc52a27b-6209-4408-91c3-6bb58d05b981",
-        "name" : "admin",
-        "description" : "kafka-ui admin",
+        "id" : "e8e493aa-031c-40e4-a58d-5da851a033ed",
+        "name" : "all_reader",
+        "description" : "kafka-ui all-reader",
         "composite" : false,
         "clientRole" : true,
         "containerId" : "3abacfcf-3709-4e04-83ec-7a6bd02d4f8c",
@@ -383,6 +383,7 @@
     "attributes" : { },
     "realmRoles" : [ ],
     "clientRoles" : {
+      "kafka-ui" : [ "all_reader" ],
       "akhq" : [ "all_reader" ]
     },
     "subGroups" : [ ]
@@ -403,7 +404,7 @@
   "otpPolicyLookAheadWindow" : 1,
   "otpPolicyPeriod" : 30,
   "otpPolicyCodeReusable" : false,
-  "otpSupportedApplications" : [ "totpAppGoogleName", "totpAppMicrosoftAuthenticatorName", "totpAppFreeOTPName" ],
+  "otpSupportedApplications" : [ "totpAppFreeOTPName", "totpAppMicrosoftAuthenticatorName", "totpAppGoogleName" ],
   "webAuthnPolicyRpEntityName" : "keycloak",
   "webAuthnPolicySignatureAlgorithms" : [ "ES256" ],
   "webAuthnPolicyRpId" : "",
@@ -1284,7 +1285,7 @@
       "subType" : "authenticated",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "oidc-sha256-pairwise-sub-mapper", "oidc-usermodel-property-mapper", "oidc-address-mapper", "saml-role-list-mapper", "saml-user-attribute-mapper", "oidc-full-name-mapper", "oidc-usermodel-attribute-mapper", "saml-user-property-mapper" ]
+        "allowed-protocol-mapper-types" : [ "saml-user-property-mapper", "oidc-usermodel-property-mapper", "oidc-full-name-mapper", "oidc-usermodel-attribute-mapper", "oidc-address-mapper", "saml-user-attribute-mapper", "oidc-sha256-pairwise-sub-mapper", "saml-role-list-mapper" ]
       }
     }, {
       "id" : "6bd4f6fd-d6fb-4ee3-a5c8-15bf1908b97a",
@@ -1310,7 +1311,7 @@
       "subType" : "anonymous",
       "subComponents" : { },
       "config" : {
-        "allowed-protocol-mapper-types" : [ "oidc-sha256-pairwise-sub-mapper", "saml-user-attribute-mapper", "oidc-usermodel-property-mapper", "oidc-usermodel-attribute-mapper", "oidc-full-name-mapper", "saml-role-list-mapper", "saml-user-property-mapper", "oidc-address-mapper" ]
+        "allowed-protocol-mapper-types" : [ "saml-role-list-mapper", "oidc-full-name-mapper", "oidc-usermodel-property-mapper", "saml-user-property-mapper", "oidc-sha256-pairwise-sub-mapper", "oidc-usermodel-attribute-mapper", "saml-user-attribute-mapper", "oidc-address-mapper" ]
       }
     }, {
       "id" : "e77668ec-426d-43e4-b02c-91521c19e32e",

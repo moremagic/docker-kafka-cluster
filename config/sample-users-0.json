@@ -22,5 +22,27 @@
     "realmRoles" : [ "default-roles-sample-realm" ],
     "notBefore" : 0,
     "groups" : [ "/demo_admin" ]
+  }, {
+    "id" : "c3a50f20-6656-4c2f-b270-6481509cf160",
+    "createdTimestamp" : 1693275858182,
+    "username" : "reader-user",
+    "enabled" : true,
+    "totp" : false,
+    "emailVerified" : false,
+    "firstName" : "",
+    "lastName" : "",
+    "credentials" : [ {
+      "id" : "5adf3f6f-5f14-4072-8c68-d9330db25462",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1693275881132,
+      "secretData" : "{\"value\":\"f62UYSt7jKpjotRPmU8vqzN5Ra00kn/AzJEIvm+lUJM=\",\"salt\":\"mriTf3cQ0yEuIQLLR1UFrQ==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-sample-realm" ],
+    "notBefore" : 0,
+    "groups" : [ "/demo_reader" ]
   } ]
 }
