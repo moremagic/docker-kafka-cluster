@@ -1,0 +1,141 @@
+logging:
+  level:
+    com.provectus.kafka.ui.service.rbac: TRACE
+    com.provectus.kafka.ui.service.rbac.extractor: TRACE
+    org.springframework.security: TRACE
+
+kafka:
+  clusters:
+    -
+      name: dev
+      bootstrapServers: broker-1:9092,broker-2:9092,broker-3:9092
+      metrics:
+        port: 9997
+        type: JMX
+auth:
+  type: OAUTH2
+  oauth2:
+    client:
+      keycloak:
+        clientId: kafka-ui
+        scope: openid
+        issuer-uri: http://${DOCKER_HOST_IP:-127.0.0.1}:8080/realms/sample
+        user-name-attribute: preferred_username
+        client-name: keycloak
+        provider: oauth
+        custom-params:
+          type: keycloak
+          roles-field: kafka-ui_roles
+
+rbac:
+  roles:
+    - name: "role_admin"
+      clusters:
+        - dev
+      subjects:
+        - provider: oauth
+          type: role
+          value: "role_admin"
+      permissions:
+        - resource: applicationconfig
+          actions: all
+
+        - resource: clusterconfig
+          actions: all
+
+        - resource: topic
+          value: ".*"
+          actions: all 
+
+        - resource: consumer
+          value: ".*"
+          actions: all
+
+        - resource: schema
+          value: ".*"
+          actions: all
+
+        - resource: connect
+          value: ".*"
+          actions: all
+
+        - resource: ksql
+          actions: all
+          
+        - resource: acl
+          actions: [ view ]
+ 
+    - name: "role_all_reader"
+      clusters:
+        - dev
+      subjects:
+        - provider: oauth
+          type: role
+          value: "role_all_reader"
+      permissions:
+        - resource: applicationconfig
+          actions: [ view ] 
+
+        - resource: clusterconfig
+          actions: [ view ] 
+
+        - resource: topic
+          value: ".*"
+          actions: [ view ] 
+
+        - resource: consumer
+          value: ".*"
+          actions: [ view ] 
+
+        - resource: schema
+          value: ".*"
+          actions: [ view ] 
+
+        - resource: connect
+          value: ".*"
+          actions: [ view ] 
+
+        - resource: ksql
+          actions: [ view ] 
+          
+        - resource: acl
+          actions: [ view ] 
+
+    - name: "role_A"
+      clusters:
+        - dev
+      subjects:
+        - provider: oauth
+          type: user
+          value: "admin-user"
+      permissions:
+        - resource: topic
+          value: "a.*"
+          actions: [ messages_read, messages_produce ]
+
+    - name: "role_B"
+      clusters:
+        - dev
+      subjects:
+        - provider: oauth
+          type: user
+          value: "admin-user"
+        - provider: oauth
+          type: user
+          value: "reader-user"
+      permissions:
+        - resource: topic
+          value: "b.*"
+          actions: [ messages_read, messages_produce ]
+
+    - name: "role_C"
+      clusters:
+        - dev
+      subjects:
+        - provider: oauth
+          type: user
+          value: "reader-user"
+      permissions:
+        - resource: topic
+          value: "c.*"
+          actions: [ messages_read, messages_produce ]
