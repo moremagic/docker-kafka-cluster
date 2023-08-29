@@ -19,9 +19,9 @@ $ ./secrets-tool/create-secrets.sh
 $ docker-compose -f docker-compose-ssl.yml up -d
 ```
 
-## Kafka PLAINTEXT + AKHQ + OIDC(Keycloak for AKHQ)
+## Kafka PLAINTEXT + AKHQ + OIDC(Keycloak for AKHQ and kafka-ui)
 
-暗号化しない Broker と OIDC 認証を有効にした AKHQ の起動手順です
+暗号化しない Broker と OIDC 認証を有効にした (AKHQ, kafka-ui) の起動手順です
 
 ```
 $ export DOCKER_HOST_IP=$(ifconfig en0 | awk '$1 == "inet" {print $2}')
@@ -32,10 +32,14 @@ $ docker-compose -f docker-compose-akhq-oidc.yml up -d
 
 AKHQ には以下のようにアクセスします
 
-```
-$ export DOCKER_HOST_IP=$(ifconfig en0 | awk '$1 == "inet" {print $2}')
-$ open http://${DOCKER_HOST_IP}:8080
-```
+http://localhost:18080
+
+
+## [kafka-ui](https://docs.kafka-ui.provectus.io/overview/readme)
+
+kafka-ui には以下のようにアクセスします
+
+http://localhost:8081
 
 ### OIDC有効時のユーザーとパスワード
 | AKHQ user | password | [group](https://akhq.io/docs/configuration/authentifications/groups.html) |
