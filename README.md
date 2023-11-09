@@ -4,22 +4,22 @@ Kafka をクラスタ構成でローカル起動するDockerComposeです
 
 # quick start
 
-## Kafka PLAINTEXT + AKHQ
+## Kafka PLAINTEXT + (AKHQ and kafka-ui)
 
-暗号化しない Broker と AKHQ の起動手順です
+暗号化しない Broker の起動手順です
 
 `docker-compose up -d`
 
-## Kafka SSL + AKHQ
+## Kafka SSL + (AKHQ)
 
-SSL暗号化を有効にした Broker と AKHQ の起動手順です
+SSL暗号化を有効にした Broker の起動手順です
 
 ```
 $ ./secrets-tool/create-secrets.sh
-$ docker-compose -f docker-compose-ssl.yml up -d
+$ docker-compose -f compose-ssl.yml up -d
 ```
 
-## Kafka PLAINTEXT + AKHQ + OIDC(Keycloak for AKHQ and kafka-ui)
+## Kafka PLAINTEXT + OIDC client(Keycloak for AKHQ and kafka-ui)
 
 暗号化しない Broker と OIDC 認証を有効にした (AKHQ, kafka-ui) の起動手順です
 
@@ -42,7 +42,7 @@ kafka-ui には以下のようにアクセスします
 http://localhost:8081
 
 ### OIDC有効時のユーザーとパスワード
-| AKHQ user | password | [group](https://akhq.io/docs/configuration/authentifications/groups.html) |
+| user | password | [group](https://akhq.io/docs/configuration/authentifications/groups.html) |
 ----|----|----
 | admin-user | admin | admin |
 | reader-user | reader | reader |
