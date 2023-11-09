@@ -84,11 +84,109 @@ services:
     restart: always
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP:-127.0.0.1}
-      SPRING_CONFIG_ADDITIONAL-LOCATION: /config.yml
-    volumes:
-      - ./config/kafkaui-config.yml:/config.yml
+      KAFKAUI_CONFIGURATION: |
+        logging:
+          level:
+            com.provectus.kafka.ui.service.rbac: TRACE
+            com.provectus.kafka.ui.service.rbac.extractor: TRACE
+            org.springframework.security: TRACE
+            software.amazon.msk.auth: TRACE
+        kafka:
+          clusters:
+            -
+              name: dev
+              bootstrapServers: broker-1:9092,broker-2:9092,broker-3:9092
+              metrics:
+                port: 9997
+                type: JMX
+        auth:
+          type: OAUTH2
+          oauth2:
+            client:
+              keycloak:
+                clientId: kafka-ui
+                scope: openid
+                issuer-uri: http://${DOCKER_HOST_IP:-127.0.0.1}:8080/realms/sample
+                user-name-attribute: preferred_username
+                client-name: keycloak
+                provider: oauth
+                custom-params:
+                  type: keycloak
+                  roles-field: kafka-ui_roles
+        rbac:
+          roles:
+            - name: "role_admin"
+              clusters:
+                - dev
+              subjects:
+                - provider: oauth
+                  type: role
+                  value: "role_admin"
+              permissions:
+                - resource: applicationconfig
+                  actions: all
+                - resource: clusterconfig
+                  actions: all
+                - resource: topic
+                  value: ".*"
+                  actions: all 
+                - resource: consumer
+                  value: ".*"
+                  actions: all
+                - resource: schema
+                  value: ".*"
+                  actions: all
+                - resource: connect
+                  value: ".*"
+                  actions: all
+                - resource: ksql
+                  value: ".*"
+                  actions: all
+                - resource: acl
+                  value: ".*"
+                  actions: all
+            - name: "role_all_reader"
+              clusters:
+                - dev
+              subjects:
+                - provider: oauth
+                  type: role
+                  value: "role_all_reader"
+              permissions:
+                - resource: applicationconfig
+                  actions: [ view ] 
+                - resource: clusterconfig
+                  actions: [ view ] 
+                - resource: topic
+                  value: ".*"
+                  actions: [ view ] 
+                - resource: consumer
+                  value: ".*"
+                  actions: [ view ] 
+                - resource: schema
+                  value: ".*"
+                  actions: [ view ] 
+                - resource: connect
+                  value: ".*"
+                  actions: [ view ] 
+                - resource: ksql
+                  actions: [ view ] 
+                - resource: acl
+                  value: ".*"
+                  actions: [ view ] 
+        
+    extra_hosts:
+      - host.docker.internal:host-gateway
     ports:
       - 8081:8080
+    entrypoint: >
+      /bin/sh -c '
+      wget https://repo1.maven.org/maven2/software/amazon/msk/aws-msk-iam-auth/1.1.9/aws-msk-iam-auth-1.1.9.jar -O /home/kafkaui/aws-msk-iam-auth-1.1.9.jar
+      && export LOADER_PATH=/home/kafkaui/aws-msk-iam-auth-1.1.9.jar
+      && echo -e "$${KAFKAUI_CONFIGURATION}" > /home/kafkaui/config.yml
+      && export SPRING_CONFIG_ADDITIONAL_LOCATION=/home/kafkaui/config.yml
+      && java --add-opens java.rmi/javax.rmi.ssl=ALL-UNNAMED  $JAVA_OPTS -jar kafka-ui-api.jar
+      '
     depends_on:
       - keycloak
 
